@@ -1,0 +1,5739 @@
+{
+  "schema": "recovery-cases/1",
+  "description": "Synthetic-credential account recovery: single-process cases and sync-point-ordered two-process races. All ids, keys and profiles are invented; no real credential is used anywhere.",
+  "cases": [
+    {
+      "case_id": "happy",
+      "tenant": "tenant-happy",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "happy-h",
+            "type": "human"
+          },
+          {
+            "id": "happy-d",
+            "type": "device"
+          },
+          {
+            "id": "happy-a",
+            "type": "admin"
+          },
+          {
+            "id": "happy-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-01-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "happy-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-human",
+            "signature": "e6d0eece870dc8a946e90fd3f822dd7e03781961abf6029ea3a6d8ffceb25af7"
+          },
+          {
+            "id": "p-02-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "happy-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-device",
+            "signature": "d9a2c2bc44a160e04b619a42c541f8e46a1e00d347a5e0f2451aa89039c84abf"
+          },
+          {
+            "id": "p-03-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "happy-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-admin",
+            "signature": "3b65240a59308d8259930b2b2d728cf9c8a9ba7eba099b0a2cfc49b2be81c683"
+          },
+          {
+            "id": "p-04-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "happy-spare",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-spare",
+            "signature": "f5fe58a86655e5a4bbfebedbce96aa94b9084fd4922f888f56178f774f0b15d0"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 501
+        },
+        {
+          "remote_id": "op-account",
+          "op": "get_account",
+          "account_id": "acct-1"
+        },
+        {
+          "remote_id": "op-attempt",
+          "op": "get_attempt",
+          "attempt_id": "att-1"
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "p-01-human",
+              "p-02-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "code": null,
+            "proofs": [
+              "p-01-human",
+              "p-02-device"
+            ],
+            "account_gen": 2
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "replayed": true,
+            "proofs": [
+              "p-01-human",
+              "p-02-device"
+            ]
+          },
+          {
+            "op": 3,
+            "status": "error",
+            "code": "E501"
+          },
+          {
+            "op": 4,
+            "status": "read"
+          },
+          {
+            "op": 5,
+            "status": "read"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed",
+          "proofs.p-01-human.status": "consumed",
+          "proofs.p-02-device.status": "consumed",
+          "proofs.p-03-admin.status": "available",
+          "proofs.p-04-human.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "protocol",
+      "tenant": "tenant-protocol",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "protocol-h",
+            "type": "human"
+          },
+          {
+            "id": "protocol-d",
+            "type": "device"
+          },
+          {
+            "id": "protocol-a",
+            "type": "admin"
+          },
+          {
+            "id": "protocol-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-00-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "protocol-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "8f510767ecb4ccec77ae467d713b10ddc2ddf7288f517923e7162540caf11084"
+          },
+          {
+            "id": "p-01-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "protocol-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "5e11c7161f51f61d0e3bc5cf178de899eb492b1bb97f929d8b66bf26202cb169"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "proto-unknown",
+          "op": "explode",
+          "account_id": "acct-1"
+        },
+        {
+          "remote_id": "proto-missing",
+          "op": "request_recovery",
+          "account_id": "acct-1"
+        },
+        {
+          "remote_id": "proto-type",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": 7
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "error",
+            "code": "E102"
+          },
+          {
+            "op": 1,
+            "status": "error",
+            "code": "E100"
+          },
+          {
+            "op": 2,
+            "status": "error",
+            "code": "E100"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1
+        }
+      }
+    },
+    {
+      "case_id": "pairs",
+      "tenant": "tenant-pairs",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "pairs-h",
+            "type": "human"
+          },
+          {
+            "id": "pairs-d",
+            "type": "device"
+          },
+          {
+            "id": "pairs-a",
+            "type": "admin"
+          },
+          {
+            "id": "pairs-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-10-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "pairs-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-shared",
+            "signature": "a911a71306f2f13bb619558e79cdbe6ba3135a7604da2af748a05c34de0566df"
+          },
+          {
+            "id": "p-11-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "pairs-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-shared",
+            "signature": "d3e3c5dec86cdaedb1ba614e65b9f915b1d7de950d1bca749aba68e00fdf4adb"
+          },
+          {
+            "id": "p-12-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "pairs-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d1",
+            "signature": "3a20baea36480d93371948737a5b88131617b0e2ed72608c0c8ba6ee9ae155a6"
+          },
+          {
+            "id": "p-13-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "pairs-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d2",
+            "signature": "451ba1779bdca216b58085fa3819e5674997762f4300d96fd02ae30e0f942278"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-2",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "p-10-human",
+              "p-12-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "p-10-human",
+              "p-12-device"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "rejected",
+            "code": "E505"
+          }
+        ],
+        "final": {
+          "proofs.p-10-human.status": "consumed",
+          "proofs.p-12-device.status": "consumed",
+          "proofs.p-11-admin.status": "available",
+          "proofs.p-13-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "deviceonly",
+      "tenant": "tenant-deviceonly",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "deviceonly-h",
+            "type": "human"
+          },
+          {
+            "id": "deviceonly-d",
+            "type": "device"
+          },
+          {
+            "id": "deviceonly-a",
+            "type": "admin"
+          },
+          {
+            "id": "deviceonly-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-20-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "deviceonly-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d1",
+            "signature": "64651a7ccd10919db5b346e92e0ff6a5ef5a6b609ef268c4c69dae677774d5b3"
+          },
+          {
+            "id": "p-21-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "deviceonly-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d2",
+            "signature": "8c47899ca74e261293f43c728fe1b43fa07f923dfddc2e403e424ee20a943a75"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506"
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E506"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open",
+          "proofs.p-20-device.status": "available",
+          "proofs.p-21-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "signer",
+      "tenant": "tenant-signer",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "signer-h",
+            "type": "human"
+          },
+          {
+            "id": "signer-d",
+            "type": "device"
+          },
+          {
+            "id": "signer-a",
+            "type": "admin"
+          },
+          {
+            "id": "signer-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-30-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "signer-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-same",
+            "signature": "7a18c12b5f0175da9fef8e9273eef38ac0bf0fd1b5b35eefc4ad2cf9c135b8b4"
+          },
+          {
+            "id": "p-31-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "signer-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-same",
+            "signature": "58723786ba01b37350aa0c5c6be25ab842170583ef6fcc89dfaeb7fe852633c5"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506"
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E506"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "proofs.p-30-human.status": "available",
+          "proofs.p-31-admin.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "bounds",
+      "tenant": "tenant-bounds",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "bounds-h",
+            "type": "human"
+          },
+          {
+            "id": "bounds-d",
+            "type": "device"
+          },
+          {
+            "id": "bounds-a",
+            "type": "admin"
+          },
+          {
+            "id": "bounds-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 2000,
+            "status": "open"
+          },
+          {
+            "id": "att-3",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 2000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-50-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "bounds-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 200,
+            "not_after": 2000,
+            "issuer": "v-h",
+            "signature": "710ebb1176c0aabb5a98ee05c3a972ef299179ed12878ee5e37752b8481e0d56"
+          },
+          {
+            "id": "p-51-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "bounds-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-d",
+            "signature": "20d35b7c91405bf0a5ad1f0812944031a39de9584a1b8d075c7f697ced44c02c"
+          },
+          {
+            "id": "p-52-human",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "bounds-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 200,
+            "not_after": 800,
+            "issuer": "v-h2",
+            "signature": "87c651955060e2bd86f5c0f724c27d5cf81bb0b7e28f0361c2de635c3643b2ff"
+          },
+          {
+            "id": "p-53-device",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "bounds-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-d2",
+            "signature": "e89eeadebf44dcd1e4b6f95d9bef77147f2bc7dbb078a22d2ac8a4681237e101"
+          },
+          {
+            "id": "p-54-human",
+            "attempt_id": "att-3",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "bounds-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 200,
+            "not_after": 800,
+            "issuer": "v-h3",
+            "signature": "4722c91972881135f5c759f53546045605517c0a747d71c9154aee29639c7d65"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview-at-nb",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 200
+        },
+        {
+          "remote_id": "op-preview-early",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 199
+        },
+        {
+          "remote_id": "op-preview-exp",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 900
+        },
+        {
+          "remote_id": "op-preview-after",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 901
+        },
+        {
+          "remote_id": "op-preview-attempt-exp",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 900
+        },
+        {
+          "remote_id": "op-preview-attempt-late",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 901
+        },
+        {
+          "remote_id": "op-preview-proof-exp",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 800
+        },
+        {
+          "remote_id": "op-preview-proof-late",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 801
+        },
+        {
+          "remote_id": "op-preview-att3",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-3",
+          "at": 801
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 900
+        },
+        {
+          "remote_id": "req-2",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 900
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "p-50-human",
+              "p-51-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E210",
+              null
+            ]
+          },
+          {
+            "op": 2,
+            "status": "ok",
+            "candidate": [
+              "p-50-human",
+              "p-51-device"
+            ]
+          },
+          {
+            "op": 3,
+            "status": "unavailable",
+            "code": "E211"
+          },
+          {
+            "op": 4,
+            "status": "ok",
+            "candidate": [
+              "p-50-human",
+              "p-51-device"
+            ]
+          },
+          {
+            "op": 5,
+            "status": "unavailable",
+            "code": "E211"
+          },
+          {
+            "op": 6,
+            "status": "ok",
+            "candidate": [
+              "p-52-human",
+              "p-53-device"
+            ]
+          },
+          {
+            "op": 7,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E204",
+              null
+            ]
+          },
+          {
+            "op": 8,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E204"
+            ]
+          },
+          {
+            "op": 9,
+            "status": "committed",
+            "proofs": [
+              "p-50-human",
+              "p-51-device"
+            ]
+          },
+          {
+            "op": 10,
+            "status": "rejected",
+            "code": "E505"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed",
+          "attempts.att-2.status": "closed",
+          "attempts.att-3.status": "closed",
+          "proofs.p-50-human.status": "consumed",
+          "proofs.p-51-device.status": "consumed",
+          "proofs.p-52-human.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "chanlife",
+      "tenant": "tenant-chanlife",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "chanlife-h",
+            "type": "human"
+          },
+          {
+            "id": "chanlife-d",
+            "type": "device"
+          },
+          {
+            "id": "chanlife-a",
+            "type": "admin"
+          },
+          {
+            "id": "chanlife-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 2000,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 2000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-60-human-g1",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "chanlife-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-h",
+            "signature": "ffb8999a04f759057c7d86c7267024db84fafb87991d3b0fe77c9a5c31cf62a0"
+          },
+          {
+            "id": "p-61-device-g1",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "chanlife-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-d",
+            "signature": "42e8663be44197b543b6b8a6a276491ef71da4584a53f256844dedf6cf81c7d8"
+          },
+          {
+            "id": "p-62-human-g1",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "chanlife-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-h2",
+            "signature": "e6caa68ed9a09d45cd6fcf7c43998ea82bb8313ee21271d0e5f88bf64dfabd1e"
+          },
+          {
+            "id": "p-63-admin-g1",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "chanlife-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 2000,
+            "issuer": "v-a",
+            "signature": "62c7473afb69ac7adf894978c3262a9eb43edb5343137b36577d63f4bd3d6d77"
+          }
+        ],
+        "channel_events": [
+          {
+            "id": "ev-h-rot1",
+            "channel_id": "chanlife-h",
+            "kind": "rotate",
+            "channel_gen": 2,
+            "at": 300,
+            "signature": "047de72bccc23fcf8ada36c43d6ef404eee082df7a91c8b838d62df3ba5cdf67"
+          },
+          {
+            "id": "ev-d-rev1",
+            "channel_id": "chanlife-d",
+            "kind": "revoke",
+            "channel_gen": 1,
+            "at": 250,
+            "signature": "b1f3e37fa2e4a712f6c3160138fa7d213bf35ea2c630b575bf9663c3f3654d68"
+          }
+        ]
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview-stale",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 400
+        },
+        {
+          "remote_id": "op-preview-revoked",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 299
+        },
+        {
+          "remote_id": "op-preview-att2",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 400
+        },
+        {
+          "id": "lif-1",
+          "channel_id": "chanlife-d",
+          "kind": "rotate",
+          "channel_gen": 2,
+          "at": 500,
+          "remote_id": "lif-1",
+          "op": "rotate_channel",
+          "signature": "34648e578acc6033eda14c755cdc91eb7a521494bc5d60d9bc60456a2dafbabb"
+        },
+        {
+          "id": "lif-2",
+          "channel_id": "chanlife-h",
+          "kind": "rotate",
+          "channel_gen": 2,
+          "at": 600,
+          "remote_id": "lif-2",
+          "op": "rotate_channel",
+          "signature": "464155b9695f18946d64788a6573e82fd20739b256574b07b48fdb84264785f8"
+        },
+        {
+          "id": "lif-3",
+          "channel_id": "chanlife-h",
+          "kind": "rotate",
+          "channel_gen": 3,
+          "at": 700,
+          "remote_id": "lif-3",
+          "op": "rotate_channel",
+          "signature": "86f4fdddb3a51781d1e88f31bc68577c7cd138454638871b92bf71bedc75b232"
+        },
+        {
+          "id": "lif-time",
+          "channel_id": "chanlife-h",
+          "kind": "rotate",
+          "channel_gen": 4,
+          "at": 650,
+          "remote_id": "lif-time",
+          "op": "rotate_channel",
+          "signature": "2115e369c6045b902e6b32f38d931cb3e06c036416ea321fb7b9b6622eacab29"
+        },
+        {
+          "id": "lif-unknown",
+          "channel_id": "no-such-channel",
+          "kind": "revoke",
+          "channel_gen": 1,
+          "at": 760,
+          "remote_id": "lif-unknown",
+          "op": "revoke_channel",
+          "signature": "75802b7999e25715e3e92e708df75e5ccaa9fabaf50d9a70989ae9397effa074"
+        },
+        {
+          "id": "lif-4",
+          "channel_id": "chanlife-a",
+          "kind": "revoke",
+          "channel_gen": 1,
+          "at": 750,
+          "remote_id": "lif-4",
+          "op": "revoke_channel",
+          "signature": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 800
+        },
+        {
+          "remote_id": "req-2",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 900
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E403",
+              "E402"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E403",
+              "E402"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E403",
+              null
+            ]
+          },
+          {
+            "op": 3,
+            "status": "rejected",
+            "code": "E402"
+          },
+          {
+            "op": 4,
+            "status": "rejected",
+            "code": "E404"
+          },
+          {
+            "op": 5,
+            "status": "committed",
+            "code": null
+          },
+          {
+            "op": 6,
+            "status": "rejected",
+            "code": "E214"
+          },
+          {
+            "op": 7,
+            "status": "rejected",
+            "code": "E401"
+          },
+          {
+            "op": 8,
+            "status": "rejected",
+            "code": "E301"
+          },
+          {
+            "op": 9,
+            "status": "rejected",
+            "code": "E506",
+            "reasons": [
+              "E403",
+              "E402"
+            ]
+          },
+          {
+            "op": 10,
+            "status": "rejected",
+            "code": "E506"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open",
+          "proofs.p-60-human-g1.status": "available",
+          "proofs.p-61-device-g1.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "newgen",
+      "tenant": "tenant-newgen",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "newgen-h",
+            "type": "human"
+          },
+          {
+            "id": "newgen-d",
+            "type": "device"
+          },
+          {
+            "id": "newgen-a",
+            "type": "admin"
+          },
+          {
+            "id": "newgen-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-70-human-g1",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "newgen-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "96f45a52a636d68b66b619fcdfe4cbb203655e4bb784f8e3309066a1ff76fa96"
+          },
+          {
+            "id": "p-71-human-g2",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "newgen-h",
+            "channel_type": "human",
+            "channel_gen": 2,
+            "not_before": 400,
+            "not_after": 3000,
+            "issuer": "v-h2",
+            "signature": "8210a09571ff6efaf962b7229ee81df15c97e47d69d050157cf5165ec2507211"
+          },
+          {
+            "id": "p-72-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "newgen-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d",
+            "signature": "dcfa4f73c715f11ddca5ffc469fc460255ed40c24a251e6fbd8f559c40d7a374"
+          }
+        ],
+        "channel_events": [
+          {
+            "id": "ev-h-rot",
+            "channel_id": "newgen-h",
+            "kind": "rotate",
+            "channel_gen": 2,
+            "at": 300,
+            "signature": "c8a0fc59681b5f7b070cbee9b87a2e2d2b0d3c90b8c201f068b2281995b8ad32"
+          }
+        ]
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "p-71-human-g2",
+              "p-72-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "p-71-human-g2",
+              "p-72-device"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.p-70-human-g1.status": "available",
+          "proofs.p-71-human-g2.status": "consumed"
+        }
+      }
+    },
+    {
+      "case_id": "binding",
+      "tenant": "tenant-binding",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "binding-h",
+            "type": "human"
+          },
+          {
+            "id": "binding-d",
+            "type": "device"
+          },
+          {
+            "id": "binding-a",
+            "type": "admin"
+          },
+          {
+            "id": "binding-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-80-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "5de90be7e8294b88a1a3e6e286bef7ca7ad9369796bccc4163b6256178b6386c",
+            "channel_id": "binding-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "3e67bc9289198d6113c6b2b4a9249a59e0663d130f593bb6825928edfacf4925"
+          },
+          {
+            "id": "p-81-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "binding-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "4316b1fc8a424218f149c3aab575960cfbc7109f714352a189c3ac7f7770845b"
+          },
+          {
+            "id": "p-82-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 2,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "binding-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "29c8420dd36e323a3a4a7bf8155250c8740520ae4282ef91fcbe462805f422bf"
+          },
+          {
+            "id": "p-83-admin",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "binding-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a2",
+            "signature": "a0faead23f945c75e325650790bad03be7c0ac5002a8821a81c9802ca94c417a"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              "E205",
+              null,
+              "E205"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E506",
+            "reasons": [
+              "E205",
+              null,
+              "E205"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "proofs.p-80-human.status": "available",
+          "proofs.p-81-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "route",
+      "tenant": "tenant-route",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "route-h",
+            "type": "human"
+          },
+          {
+            "id": "route-d",
+            "type": "device"
+          },
+          {
+            "id": "route-a",
+            "type": "admin"
+          },
+          {
+            "id": "route-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          },
+          {
+            "id": "acct-2",
+            "account_gen": 1,
+            "status": "active"
+          },
+          {
+            "id": "acct-3",
+            "account_gen": 1,
+            "status": "frozen"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-2",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          },
+          {
+            "id": "att-3",
+            "account_id": "acct-3",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-90-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "route-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "1ba6112f0f7389f8a3f9dac9f101fbc6bc234d00690bdffa47b4c4127f40b7f1"
+          },
+          {
+            "id": "p-91-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "route-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "9bb47e38683d321f5b12cd44d491fab6e42343093c9b94993e0ffa02fdf5f366"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-wrong-account",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-frozen",
+          "op": "request_recovery",
+          "account_id": "acct-3",
+          "attempt_id": "att-3",
+          "at": 500
+        },
+        {
+          "remote_id": "req-unknown",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-missing",
+          "at": 500
+        },
+        {
+          "remote_id": "op-preview-unknown",
+          "op": "preview",
+          "account_id": "acct-missing",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E502"
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E212"
+          },
+          {
+            "op": 2,
+            "status": "rejected",
+            "code": "E201"
+          },
+          {
+            "op": 3,
+            "status": "unavailable",
+            "code": "E201"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open"
+        }
+      }
+    },
+    {
+      "case_id": "second",
+      "tenant": "tenant-second",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "second-h",
+            "type": "human"
+          },
+          {
+            "id": "second-d",
+            "type": "device"
+          },
+          {
+            "id": "second-a",
+            "type": "admin"
+          },
+          {
+            "id": "second-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          },
+          {
+            "id": "att-sibling",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 2,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 4000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-100-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "fc70110dfb3d9dc4ef55b90a8d9c77112e7cbdf1f702d0727f966d2b4143276c"
+          },
+          {
+            "id": "p-101-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d",
+            "signature": "6d6de9616d738e25145daf6b4dea7580281345b95b1122cf5a461761322d8fd0"
+          },
+          {
+            "id": "p-102-admin",
+            "attempt_id": "att-sibling",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-a",
+            "signature": "b1be0b0adf94455495faeda376786ac3263ed6444f265171e2ff4ef1d87787a0"
+          },
+          {
+            "id": "p-103-device",
+            "attempt_id": "att-sibling",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d2",
+            "signature": "3b288c2a2268e11d030de406d0f8527365b667ba94f5eac96bb4f17b29a16d0d"
+          },
+          {
+            "id": "p-104-human",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 2,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 4000,
+            "issuer": "v-h3",
+            "signature": "ae205e53aafc23eda44ddf482e73b6258f987d4863c8cb00704aea9840984088"
+          },
+          {
+            "id": "p-105-admin",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 2,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "second-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 4000,
+            "issuer": "v-a3",
+            "signature": "b2be70c9ae8750f780a092a59be5402e1c59897d35bb9cdc976425e82b15a5e6"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-sibling",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-sibling",
+          "at": 600
+        },
+        {
+          "remote_id": "req-2",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 700
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "committed",
+            "account_gen": 2,
+            "proofs": [
+              "p-100-human",
+              "p-101-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E505"
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "account_gen": 3,
+            "proofs": [
+              "p-104-human",
+              "p-105-admin"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 3,
+          "attempts.att-1.status": "closed",
+          "attempts.att-sibling.status": "closed",
+          "attempts.att-2.status": "closed"
+        }
+      }
+    },
+    {
+      "case_id": "fixedfail",
+      "tenant": "tenant-fixedfail",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "fixedfail-h",
+            "type": "human"
+          },
+          {
+            "id": "fixedfail-d",
+            "type": "device"
+          },
+          {
+            "id": "fixedfail-a",
+            "type": "admin"
+          },
+          {
+            "id": "fixedfail-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-110-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "fixedfail-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "d83056692025356c074752c18eaf8e95e752360dfc40d7dde4b0a7a9424e93d3"
+          },
+          {
+            "id": "p-111-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "fixedfail-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 400,
+            "not_after": 3000,
+            "issuer": "v-d",
+            "signature": "d38235d2d541ac84384ea5e186c986c8c60a9fdb110b6180406c9662ab4c1d71"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-early",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 200
+        },
+        {
+          "remote_id": "req-early",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 200
+        },
+        {
+          "remote_id": "req-late",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-early",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 200
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E506",
+            "replayed": false
+          },
+          {
+            "op": 1,
+            "status": "rejected",
+            "code": "E506",
+            "replayed": true
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "proofs": [
+              "p-110-human",
+              "p-111-device"
+            ]
+          },
+          {
+            "op": 3,
+            "status": "rejected",
+            "code": "E506",
+            "replayed": true
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "proofs.p-110-human.status": "consumed"
+        }
+      }
+    },
+    {
+      "case_id": "scope",
+      "tenant": "tenant-scope-a",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "scope-h",
+            "type": "human"
+          },
+          {
+            "id": "scope-d",
+            "type": "device"
+          },
+          {
+            "id": "scope-a",
+            "type": "admin"
+          },
+          {
+            "id": "scope-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-120-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "scope-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "c058490e1667be09d963534c9a67aa54c8be74a6acbc9605195503bedc765260"
+          },
+          {
+            "id": "p-121-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "scope-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "ea927657cfa8d65f071a3a5e058d64dc929affd6151eea81ad09a5b15aaa508e"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-shared",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "committed"
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2
+        }
+      }
+    },
+    {
+      "case_id": "scopeb",
+      "tenant": "tenant-scope-b",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "scopeb-h",
+            "type": "human"
+          },
+          {
+            "id": "scopeb-d",
+            "type": "device"
+          },
+          {
+            "id": "scopeb-a",
+            "type": "admin"
+          },
+          {
+            "id": "scopeb-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-130-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "scopeb-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "a1d7b50019514195da579e4319cdef0ae447e87e48cb97536089bd87d3d2f6a7"
+          },
+          {
+            "id": "p-131-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "scopeb-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "4d866ceb7ad7cf6f18f2fb20ac77ac178115c2e4d15339fbfbba93aba5037af0"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-shared",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "committed",
+            "replayed": false
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2
+        }
+      }
+    },
+    {
+      "case_id": "adminde",
+      "tenant": "tenant-adminde",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "adminde-h",
+            "type": "human"
+          },
+          {
+            "id": "adminde-d",
+            "type": "device"
+          },
+          {
+            "id": "adminde-a",
+            "type": "admin"
+          },
+          {
+            "id": "adminde-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-140-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "adminde-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "8310905e1ba0116d1e75973f9ffc35fa7b18ce17b04e34be2cce20bbd8fff2cd"
+          },
+          {
+            "id": "p-141-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "adminde-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "c5051afb8d1e10fb3ff22e2c3f6a8f9ec3c0a51c2016348392a0274228c5f302"
+          },
+          {
+            "id": "p-139-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "adminde-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d-dup",
+            "signature": "68dfb3ed7ee0ee3cced762e9d078b68ac9ca4ecad9828fad91e8842ae3701e00"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "committed",
+            "proofs": [
+              "p-139-device",
+              "p-141-admin"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.p-139-device.status": "consumed",
+          "proofs.p-141-admin.status": "consumed",
+          "proofs.p-140-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "afterfail",
+      "tenant": "tenant-afterfail",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "afterfail-h",
+            "type": "human"
+          },
+          {
+            "id": "afterfail-d",
+            "type": "device"
+          },
+          {
+            "id": "afterfail-a",
+            "type": "admin"
+          },
+          {
+            "id": "afterfail-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-150-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "afterfail-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d1",
+            "signature": "e31c10eea2d398ace0b11539e0921f47dbb6b1a8b81f117b47ddf776e4bb782f"
+          },
+          {
+            "id": "p-151-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "afterfail-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d2",
+            "signature": "13bbae022a761714975d1926a5ce8e3831414d6de1ff392b613ef0fef990c304"
+          },
+          {
+            "id": "p-152-human",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "afterfail-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "fc25e7e3eb9ff35ed53c911656453e1421f754e233380537ed568582633be51a"
+          },
+          {
+            "id": "p-153-device",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "afterfail-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d3",
+            "signature": "a1c98e8c2ec4a6ab896a7a931c6ee3756eee7d63240d51c641a05ccee66e64db"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-2",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 600
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E506"
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "p-152-human",
+              "p-153-device"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed",
+          "proofs.p-150-device.status": "available",
+          "proofs.p-151-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "sametype",
+      "tenant": "tenant-sametype",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "sametype-h",
+            "type": "human"
+          },
+          {
+            "id": "sametype-d",
+            "type": "device"
+          },
+          {
+            "id": "sametype-a",
+            "type": "admin"
+          },
+          {
+            "id": "sametype-d2",
+            "type": "device"
+          },
+          {
+            "id": "sametype-h2",
+            "type": "human"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "h1-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "sametype-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h1",
+            "signature": "0085e3bca3c542485e0eac9a7151352b1af849e7b6b1fa53d6df1d9827688133"
+          },
+          {
+            "id": "h2-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "sametype-h2",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h2",
+            "signature": "630ae3899081245e1f07a2a09e8f6488352e88530985fbb8e58e6eb91d06359c"
+          },
+          {
+            "id": "z-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "sametype-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 600,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "64b8837ed28afe7b483f230c82426b717ddbedaf34ce15bc3fc522198d484afa"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview-early",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "op-preview-late",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 700
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 700
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506",
+            "reasons": [
+              null,
+              null,
+              "E210"
+            ],
+            "pair_codes": [
+              "E208"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "ok",
+            "candidate": [
+              "h1-human",
+              "z-admin"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "proofs": [
+              "h1-human",
+              "z-admin"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "proofs.h1-human.status": "consumed",
+          "proofs.h2-human.status": "available",
+          "proofs.z-admin.status": "consumed"
+        }
+      }
+    },
+    {
+      "case_id": "lexi",
+      "tenant": "tenant-lexi",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "lexi-h",
+            "type": "human"
+          },
+          {
+            "id": "lexi-d",
+            "type": "device"
+          },
+          {
+            "id": "lexi-a",
+            "type": "admin"
+          },
+          {
+            "id": "lexi-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "m-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "lexi-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "2ee5bbdf912121fd3e2808712843ab3cba964a8ac1ec526d234b267abce0e751"
+          },
+          {
+            "id": "k-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "lexi-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "3e71fe4197ecb5f21114e5e5cef5481262354291cec6d0ea138bbcf50203d210"
+          },
+          {
+            "id": "a-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "lexi-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "6031553ba78da96376b30eb59e29bef1527fb95e69c7cf948d35fb7849802cc8"
+          },
+          {
+            "id": "b-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "lexi-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "bfeda31f18255660530f5ca940b7a52af01679b2335664f7b99de15264dde3a4"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "a-human",
+              "k-admin"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "a-human",
+              "k-admin"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.a-human.status": "consumed",
+          "proofs.k-admin.status": "consumed",
+          "proofs.b-device.status": "available",
+          "proofs.m-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "numids",
+      "tenant": "tenant-numids",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "numids-h",
+            "type": "human"
+          },
+          {
+            "id": "numids-d",
+            "type": "device"
+          },
+          {
+            "id": "numids-a",
+            "type": "admin"
+          },
+          {
+            "id": "numids-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "p-9-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "numids-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "070b6207c59ed8f4fe2d06a32d100a4eb227c0031983be7944768edbecd380ef"
+          },
+          {
+            "id": "p-10-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "numids-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "235c74ed2fd51f38e7a64afdbbf93ee47df2b096da7a79ae040a61d3bb368700"
+          },
+          {
+            "id": "p-1-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "numids-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 400,
+            "issuer": "v-d2",
+            "signature": "f5e2569108f5117f9da6e1aba0f6116fa4658ad2f1f44e908d919a968b480eb7"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "p-10-device",
+              "p-9-human"
+            ],
+            "reasons": [
+              "E204",
+              null,
+              null
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "p-10-device",
+              "p-9-human"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.p-1-device.status": "available",
+          "proofs.p-10-device.status": "consumed",
+          "proofs.p-9-human.status": "consumed"
+        }
+      }
+    },
+    {
+      "case_id": "preconsumed",
+      "tenant": "tenant-preconsumed",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "preconsumed-h",
+            "type": "human"
+          },
+          {
+            "id": "preconsumed-d",
+            "type": "device"
+          },
+          {
+            "id": "preconsumed-a",
+            "type": "admin"
+          },
+          {
+            "id": "preconsumed-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-old",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "closed"
+          },
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "a-old-human",
+            "attempt_id": "att-old",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "preconsumed-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "27d79c906d79ba9fbf151188a20dc25b6ab6c2e1c5454c47d8322055db7cbedf",
+            "status": "consumed",
+            "consumed_by": "att-old",
+            "consumed_at": 150
+          },
+          {
+            "id": "b-old-device",
+            "attempt_id": "att-old",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "preconsumed-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d",
+            "signature": "e2f7b3c9d7c7c0feab0004f04b30b45693185600aa3054894cd0ed164ed64085",
+            "status": "consumed",
+            "consumed_by": "att-old",
+            "consumed_at": 150
+          },
+          {
+            "id": "c-new-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "preconsumed-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h2",
+            "signature": "d0a72bfdd3654d8e4c53f5e00d766c73484b0c296f45593394c01499413cff57"
+          },
+          {
+            "id": "d-new-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "preconsumed-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d2",
+            "signature": "b115530048940ae84493c833c07cb3715fb9e1d8aab2ca2599bdf5a77231ec96"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview-old",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-old",
+          "at": 500
+        },
+        {
+          "remote_id": "op-preview-new",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "unavailable",
+            "code": "E504"
+          },
+          {
+            "op": 1,
+            "status": "ok",
+            "candidate": [
+              "c-new-human",
+              "d-new-device"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "proofs": [
+              "c-new-human",
+              "d-new-device"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.a-old-human": {
+            "status": "consumed",
+            "consumed_by": "att-old"
+          },
+          "proofs.b-old-device": {
+            "status": "consumed",
+            "consumed_by": "att-old"
+          },
+          "proofs.c-new-human.status": "consumed",
+          "proofs.d-new-device.status": "consumed"
+        }
+      }
+    },
+    {
+      "case_id": "blockedpair",
+      "tenant": "tenant-blockedpair",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "blockedpair-h",
+            "type": "human"
+          },
+          {
+            "id": "blockedpair-d",
+            "type": "device"
+          },
+          {
+            "id": "blockedpair-a",
+            "type": "admin"
+          },
+          {
+            "id": "blockedpair-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "e-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "blockedpair-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-h",
+            "signature": "56959296a771b700f2ba302562c0b0cc0f22c82ad1e7fc40419e1e96d2dc75a9",
+            "status": "consumed",
+            "consumed_by": "att-other",
+            "consumed_at": 120
+          },
+          {
+            "id": "f-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "blockedpair-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d",
+            "signature": "65cb625828a8ca3cf74bb99a9c31a262fb1705a18b1c295827226d344c182292"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E506",
+            "reasons": [
+              "E206",
+              null
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "proofs.f-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "twodevices",
+      "tenant": "tenant-twodevices",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "twodevices-h",
+            "type": "human"
+          },
+          {
+            "id": "twodevices-d",
+            "type": "device"
+          },
+          {
+            "id": "twodevices-a",
+            "type": "admin"
+          },
+          {
+            "id": "twodevices-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 3000,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "d1-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "twodevices-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d1",
+            "signature": "548fad60c0fa27fda97cf552a9dd1cfa26b6182db6fc46e7e285f1c34ad35c41"
+          },
+          {
+            "id": "d2-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "twodevices-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 3000,
+            "issuer": "v-d2",
+            "signature": "61ec381e788944aa3978a2f9512261cb53ff5b32cd426706202a7de0a3492118"
+          },
+          {
+            "id": "z-admin",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "twodevices-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 900,
+            "not_after": 950,
+            "issuer": "v-a",
+            "signature": "bdb0989041015d88cb6d74fab9671a9a009547c08597686409d05e812ccbc9ed"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview-early",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "op-preview-late",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 910
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 910
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506",
+            "pair_codes": [
+              "E208",
+              "E209"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "ok",
+            "candidate": [
+              "d1-device",
+              "z-admin"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "committed",
+            "proofs": [
+              "d1-device",
+              "z-admin"
+            ]
+          }
+        ],
+        "final": {
+          "proofs.d2-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "paircodes",
+      "tenant": "tenant-paircodes",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "paircodes-h",
+            "type": "human"
+          },
+          {
+            "id": "paircodes-d",
+            "type": "device"
+          },
+          {
+            "id": "paircodes-a",
+            "type": "admin"
+          },
+          {
+            "id": "paircodes-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "a-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "paircodes-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "8f78bb868cf7b5030c624f4b3befaf7791114f61d75ef1e179648464d5cf4608"
+          },
+          {
+            "id": "b-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "paircodes-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-b",
+            "signature": "7f00e749e9a53bdab62dd6ec82236915ade915819237d406b8df316f6d822b57"
+          },
+          {
+            "id": "c-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "paircodes-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "c79d7a7ea4fef09806642c88a6c731fa14c56665611a553b83d844023b5ec255"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "none",
+            "code": "E506",
+            "pair_codes": [
+              "E207",
+              "E208",
+              "E203",
+              "E209"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "proofs.a-device.status": "available",
+          "proofs.b-device.status": "available",
+          "proofs.c-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "startbound",
+      "tenant": "tenant-startbound",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "startbound-h",
+            "type": "human"
+          },
+          {
+            "id": "startbound-d",
+            "type": "device"
+          },
+          {
+            "id": "startbound-a",
+            "type": "admin"
+          },
+          {
+            "id": "startbound-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 300,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "s1-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "startbound-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "09d455abb6d8549e2d12ab2309707f39bea0615d87e9028d403d4c0a4c25ec4a"
+          },
+          {
+            "id": "s2-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "startbound-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "89f4aebb0741e28dbda27f34ffa47dae58048e4fc1021b2439403a6e11fd0ea6"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-before",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 299
+        },
+        {
+          "remote_id": "op-at",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 300
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "unavailable",
+            "code": "E213"
+          },
+          {
+            "op": 1,
+            "status": "ok",
+            "candidate": [
+              "s1-human",
+              "s2-device"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open",
+          "proofs.s1-human.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "otheracct",
+      "tenant": "tenant-otheracct",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "otheracct-h",
+            "type": "human"
+          },
+          {
+            "id": "otheracct-d",
+            "type": "device"
+          },
+          {
+            "id": "otheracct-a",
+            "type": "admin"
+          },
+          {
+            "id": "otheracct-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          },
+          {
+            "id": "acct-2",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "o1-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "otheracct-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "1dce330197b6fb786a7a3cf5c5f43a34557e605af543f1aefe2fe030c933df69"
+          },
+          {
+            "id": "o2-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-2",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "otheracct-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "0a14a67653796ec11efcf1eb9e18b116444ed7ab47698df4fd741540d6d5d2c0"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E506",
+            "reasons": [
+              null,
+              "E205"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1
+        }
+      }
+    },
+    {
+      "case_id": "stalegen",
+      "tenant": "tenant-stalegen",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "stalegen-h",
+            "type": "human"
+          },
+          {
+            "id": "stalegen-d",
+            "type": "device"
+          },
+          {
+            "id": "stalegen-a",
+            "type": "admin"
+          },
+          {
+            "id": "stalegen-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 3,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 3,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "g1-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "stalegen-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "76bc462436a9d5d8c7062b31804a7f22094baae7c14f2d8124725a181341f2ab"
+          },
+          {
+            "id": "g2-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "stalegen-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "341c5f8e5455877576fc4ce8349b33ac58a3a4e38fd787d7f5dcb6da80949d35"
+          },
+          {
+            "id": "g3-human",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 3,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "stalegen-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h2",
+            "signature": "295a15f9d6c74bb95c0ce517905267038168a4942498c0c64244b740d60bc507"
+          },
+          {
+            "id": "g4-admin",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 3,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "stalegen-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a2",
+            "signature": "6e3301a416477a69f0c9b8314feb6e7f9ab670d5cd8a4c5398c09219674f294a"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "req-stale",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-live",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-2",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "rejected",
+            "code": "E503"
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "account_gen": 4,
+            "proofs": [
+              "g3-human",
+              "g4-admin"
+            ]
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 4,
+          "attempts.att-1.status": "open",
+          "attempts.att-2.status": "closed",
+          "proofs.g1-human.status": "available",
+          "proofs.g2-device.status": "available"
+        }
+      }
+    },
+    {
+      "case_id": "wrongatt",
+      "tenant": "tenant-wrongatt",
+      "account_id": "acct-1",
+      "signing_key": "synthetic-recovery-key-2026",
+      "load": {
+        "now": 0,
+        "channels": [
+          {
+            "id": "wrongatt-h",
+            "type": "human"
+          },
+          {
+            "id": "wrongatt-d",
+            "type": "device"
+          },
+          {
+            "id": "wrongatt-a",
+            "type": "admin"
+          },
+          {
+            "id": "wrongatt-d2",
+            "type": "device"
+          }
+        ],
+        "accounts": [
+          {
+            "id": "acct-1",
+            "account_gen": 1,
+            "status": "active"
+          }
+        ],
+        "attempts": [
+          {
+            "id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          },
+          {
+            "id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile": {
+              "display_name": "alice",
+              "email": "alice@example.test",
+              "locale": "en-GB"
+            },
+            "created_at": 100,
+            "expires_at": 900,
+            "status": "open"
+          }
+        ],
+        "proofs": [
+          {
+            "id": "k1-human",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "wrongatt-h",
+            "channel_type": "human",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-h",
+            "signature": "60f03e489019c263d768f2f9e0a90b83466614502d26b52f7a09422c20ec7045"
+          },
+          {
+            "id": "k2-device",
+            "attempt_id": "att-1",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "wrongatt-d",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d",
+            "signature": "2b57e69b6272428500f8652cf5f9965b9a3d054942dee3505385239a2f07fa10"
+          },
+          {
+            "id": "orphan-admin",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "wrongatt-a",
+            "channel_type": "admin",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-a",
+            "signature": "bf82cd774c25a6863b474dacd01848afdedacb656fc95a53c2c0c8bfdb9fdbbc"
+          },
+          {
+            "id": "k3-device",
+            "attempt_id": "att-2",
+            "account_id": "acct-1",
+            "account_gen": 1,
+            "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+            "channel_id": "wrongatt-d2",
+            "channel_type": "device",
+            "channel_gen": 1,
+            "not_before": 100,
+            "not_after": 900,
+            "issuer": "v-d2",
+            "signature": "6933eb70a82ad9c0088bf350e3ec66fd0f1e8e2a77807391736f33c766d41a27"
+          }
+        ],
+        "channel_events": []
+      },
+      "operations": [
+        {
+          "remote_id": "op-att1-preview",
+          "op": "preview",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "req-1",
+          "op": "request_recovery",
+          "account_id": "acct-1",
+          "attempt_id": "att-1",
+          "at": 500
+        },
+        {
+          "remote_id": "op-att2-preview",
+          "op": "preview",
+          "account_id": "acct-2",
+          "attempt_id": "att-2",
+          "at": 500
+        }
+      ],
+      "expect": {
+        "outcomes": [
+          {
+            "op": 0,
+            "status": "ok",
+            "candidate": [
+              "k1-human",
+              "k2-device"
+            ]
+          },
+          {
+            "op": 1,
+            "status": "committed",
+            "proofs": [
+              "k1-human",
+              "k2-device"
+            ]
+          },
+          {
+            "op": 2,
+            "status": "unavailable",
+            "code": "E201"
+          }
+        ],
+        "final": {
+          "proofs.orphan-admin.status": "available",
+          "attempts.att-2.status": "closed"
+        }
+      }
+    }
+  ],
+  "races": [
+    {
+      "race_id": "race-revoke-first",
+      "case": {
+        "case_id": "race-revoke",
+        "tenant": "tenant-race-revoke",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-revoke-h",
+              "type": "human"
+            },
+            {
+              "id": "race-revoke-d",
+              "type": "device"
+            },
+            {
+              "id": "race-revoke-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-revoke-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-revoke-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-revoke-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "b8e0eef944b40c3d08a0fbb97b9f6ba0f6327301dce15980383176b938c66585"
+            },
+            {
+              "id": "race-revoke-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-revoke-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d",
+              "signature": "63157e39bfee2705897a9dea7cd6562001c9fac53c6c4dc42f671113079d5851"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-w1",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "start": "W2",
+          "request": {
+            "id": "lif-w2",
+            "channel_id": "race-revoke-d",
+            "kind": "revoke",
+            "channel_gen": 1,
+            "at": 450,
+            "remote_id": "lif-w2",
+            "op": "revoke_channel",
+            "signature": "5ba67b63507a38c82d0ec38bdecd3068c8eefa486bcfbd907069b30739367a0b"
+          }
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "after-revoke"
+        },
+        {
+          "release": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "snapshot_change": [
+            "after-revoke",
+            "final"
+          ]
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.receipt.code": null
+          },
+          {
+            "name": "W1",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E506",
+            "envelope.replayed": false
+          }
+        ],
+        "snapshots": {
+          "after-revoke": {
+            "accounts.acct-1.account_gen": 1,
+            "events.lif-w2": {
+              "kind": "revoke",
+              "channel_gen": 1,
+              "at": 450
+            }
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open",
+          "proofs.race-revoke-h": {
+            "status": "available"
+          },
+          "proofs.race-revoke-d": {
+            "status": "available"
+          }
+        }
+      }
+    },
+    {
+      "race_id": "race-two-attempts",
+      "case": {
+        "case_id": "race-two",
+        "tenant": "tenant-race-two",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-two-h",
+              "type": "human"
+            },
+            {
+              "id": "race-two-d",
+              "type": "device"
+            },
+            {
+              "id": "race-two-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-two-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            },
+            {
+              "id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "r2-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-two-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "55e30329d73c3dfa317e37152d9f3436b4294aaf2f9a37b4c81767113bcd524b"
+            },
+            {
+              "id": "r2-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-two-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d",
+              "signature": "4d1ae12c19f7bec75455bffec803e1abfe89dd5a19a678c4526b93a0ff1ebe40"
+            },
+            {
+              "id": "r2-a",
+              "attempt_id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-two-a",
+              "channel_type": "admin",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-a",
+              "signature": "10b9a4e5056d146aa906a2d0db0d7931a83d40cffd2ae6f47b1d72450d4f9617"
+            },
+            {
+              "id": "r2-d2",
+              "attempt_id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-two-d2",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d2",
+              "signature": "19e7b06db73e24c41526bf6f8f94c240ccd226b75d7abdd48ec184f45c6ee6b3"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-1",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-2",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-2",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "at": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "release": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "snapshot": "after-first"
+        },
+        {
+          "release": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "snapshot_change": [
+            "after-first",
+            "final"
+          ]
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "envelope.receipt.status": "committed",
+            "envelope.receipt.recovery.proofs": [
+              "r2-d",
+              "r2-h"
+            ]
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E505"
+          }
+        ],
+        "snapshots": {
+          "after-first": {
+            "accounts.acct-1.account_gen": 2,
+            "attempts.att-1.status": "closed"
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed",
+          "attempts.att-2.status": "closed",
+          "proofs.r2-h.status": "consumed",
+          "proofs.r2-d.status": "consumed",
+          "proofs.r2-a.status": "available",
+          "proofs.r2-d2.status": "available"
+        }
+      }
+    },
+    {
+      "race_id": "race-expiry-boundary",
+      "case": {
+        "case_id": "race-expiry",
+        "tenant": "tenant-race-expiry",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-expiry-h",
+              "type": "human"
+            },
+            {
+              "id": "race-expiry-d",
+              "type": "device"
+            },
+            {
+              "id": "race-expiry-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-expiry-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-expiry-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "01bea8157eaa93f4d85d2433b79c14471f736f10da9852e0d470f91ad28bc81a"
+            },
+            {
+              "id": "race-expiry-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 500,
+              "issuer": "v-d",
+              "signature": "d7daaecdd16c655c9a11d4f4dd5ba9a855f4ab171d91faae66c13ecb77603188"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-too-late",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 501
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "release": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "snapshot": "after-late"
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-at-boundary",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "at": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "release": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "snapshot_change": [
+            "after-late",
+            "final"
+          ]
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E506"
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.receipt.recovery.proofs": [
+              "race-expiry-d",
+              "race-expiry-h"
+            ]
+          }
+        ],
+        "snapshots": {
+          "after-late": {
+            "accounts.acct-1.account_gen": 1,
+            "attempts.att-1.status": "open"
+          },
+          "final": {
+            "accounts.acct-1.account_gen": 2,
+            "attempts.att-1.status": "closed"
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "proofs.race-expiry-d": {
+            "status": "consumed",
+            "consumed_at": 500
+          }
+        }
+      }
+    },
+    {
+      "race_id": "race-expiry-after-commit",
+      "case": {
+        "case_id": "race-expiry2",
+        "tenant": "tenant-race-expiry2",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-expiry2-h",
+              "type": "human"
+            },
+            {
+              "id": "race-expiry2-d",
+              "type": "device"
+            },
+            {
+              "id": "race-expiry2-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-expiry2-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            },
+            {
+              "id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 2,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-expiry2-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry2-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "71c26813a95bb39f4f7456dffef4d1f8244c2e429a5884d61d0048db4aadb8ca"
+            },
+            {
+              "id": "race-expiry2-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry2-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 500,
+              "issuer": "v-d",
+              "signature": "3c322b047ccdb4f66db4ba1b5bb50b3e275e775791306013347fbba51077a3b6"
+            },
+            {
+              "id": "race-expiry2-h2",
+              "attempt_id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 2,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry2-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h2",
+              "signature": "0c528696919269ccc818676265a936225d31bd833ddac4e68e99f30c74e1b21d"
+            },
+            {
+              "id": "race-expiry2-a2",
+              "attempt_id": "att-2",
+              "account_id": "acct-1",
+              "account_gen": 2,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-expiry2-a",
+              "channel_type": "admin",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-a2",
+              "signature": "3533a2dad13e4602454e7e9220c09ff593465f181506c852600271f0de855f46"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-1",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "snapshot": "after-first"
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-2",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-2",
+            "at": 501
+          }
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "snapshot_change": [
+            "after-first",
+            "final"
+          ]
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "envelope.receipt.status": "committed",
+            "envelope.receipt.recovery.proofs": [
+              "race-expiry2-d",
+              "race-expiry2-h"
+            ]
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.receipt.recovery.proofs": [
+              "race-expiry2-a2",
+              "race-expiry2-h2"
+            ]
+          }
+        ],
+        "snapshots": {
+          "after-first": {
+            "accounts.acct-1.account_gen": 2,
+            "proofs.race-expiry2-d": {
+              "status": "consumed"
+            }
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 3
+        }
+      }
+    },
+    {
+      "race_id": "race-kill-before-commit",
+      "case": {
+        "case_id": "race-kill-before",
+        "tenant": "tenant-race-kill-before",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-kill-before-h",
+              "type": "human"
+            },
+            {
+              "id": "race-kill-before-d",
+              "type": "device"
+            },
+            {
+              "id": "race-kill-before-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-kill-before-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-kill-before-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-kill-before-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "cba433d47fc6ee00de1090cc27a5641a9f7483a7e88b9a3aa3f63354d2c681ff"
+            },
+            {
+              "id": "race-kill-before-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-kill-before-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d",
+              "signature": "c893f448477f06c60f05f2c9b9b6c32b26c045892dab5326a1deed094f27ac61"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "snapshot": "before"
+        },
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-kill",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.after_write"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.after_write"
+        },
+        {
+          "snapshot": "during"
+        },
+        {
+          "kill": "W1"
+        },
+        {
+          "expect_dead": "W1"
+        },
+        {
+          "snapshot": "after-kill"
+        },
+        {
+          "no_snapshot_change": [
+            "before",
+            "during"
+          ]
+        },
+        {
+          "no_snapshot_change": [
+            "before",
+            "after-kill"
+          ]
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-kill",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "start": "W3",
+          "request": {
+            "remote_id": "req-kill",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W3"
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "killed": true
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.replayed": false
+          },
+          {
+            "name": "W3",
+            "envelope.receipt.status": "committed",
+            "envelope.replayed": true
+          }
+        ],
+        "snapshots": {
+          "during": {
+            "accounts.acct-1.account_gen": 1,
+            "proofs.race-kill-before-h": {
+              "status": "available"
+            },
+            "attempts.att-1.status": "open"
+          },
+          "after-kill": {
+            "accounts.acct-1.account_gen": 1,
+            "attempts.att-1.status": "open",
+            "proofs.race-kill-before-h": {
+              "status": "available"
+            },
+            "proofs.race-kill-before-d": {
+              "status": "available"
+            }
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed"
+        }
+      }
+    },
+    {
+      "race_id": "race-kill-before-reply",
+      "case": {
+        "case_id": "race-kill-reply",
+        "tenant": "tenant-race-kill-reply",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-kill-reply-h",
+              "type": "human"
+            },
+            {
+              "id": "race-kill-reply-d",
+              "type": "device"
+            },
+            {
+              "id": "race-kill-reply-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-kill-reply-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-kill-reply-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-kill-reply-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "a8c7880be057d80fee7249ce432ae23df937cf22a1601bb013864018acdc355a"
+            },
+            {
+              "id": "race-kill-reply-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-kill-reply-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d",
+              "signature": "6c1e4eeef3a997812e7a1708e883ce94115aa1e08e5e07c7522674b1921ff435"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-kill",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.after_commit"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.after_commit"
+        },
+        {
+          "snapshot": "committed"
+        },
+        {
+          "kill": "W1"
+        },
+        {
+          "expect_dead": "W1"
+        },
+        {
+          "snapshot": "after-kill"
+        },
+        {
+          "no_snapshot_change": [
+            "committed",
+            "after-kill"
+          ]
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-kill",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "snapshot": "final"
+        },
+        {
+          "no_snapshot_change": [
+            "after-kill",
+            "final"
+          ]
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "killed": true
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.replayed": true
+          }
+        ],
+        "snapshots": {
+          "committed": {
+            "accounts.acct-1.account_gen": 2,
+            "attempts.att-1.status": "closed",
+            "proofs.race-kill-reply-h": {
+              "status": "consumed",
+              "consumed_by": "att-1"
+            }
+          },
+          "after-kill": {
+            "accounts.acct-1.account_gen": 2
+          }
+        },
+        "final": {
+          "accounts.acct-1.account_gen": 2,
+          "attempts.att-1.status": "closed",
+          "proofs.race-kill-reply-d": {
+            "status": "consumed"
+          }
+        }
+      }
+    },
+    {
+      "race_id": "race-failed-then-revoke",
+      "case": {
+        "case_id": "race-fail-revoke",
+        "tenant": "tenant-race-fail-revoke",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-fail-revoke-h",
+              "type": "human"
+            },
+            {
+              "id": "race-fail-revoke-d",
+              "type": "device"
+            },
+            {
+              "id": "race-fail-revoke-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-fail-revoke-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "rf-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-fail-revoke-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-x",
+              "signature": "cd86d93d6a3f4a50480af6d3fb6ac2e2530d448c1517c3ae7f0a65ae3abe1f36"
+            },
+            {
+              "id": "rf-d1",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-fail-revoke-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-x",
+              "signature": "e074a86a0a54b92b39a3ebbfafbef0537a8e5301017da6d2616bf4f31d396456"
+            },
+            {
+              "id": "rf-d2",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-fail-revoke-d2",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-x",
+              "signature": "75b9707b1817337ed45eedbfdda2a1eb47c2ef38da995998611cf107c7253938"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-fail",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "snapshot": "after-failure"
+        },
+        {
+          "start": "W2",
+          "request": {
+            "id": "lif-2",
+            "channel_id": "race-fail-revoke-h",
+            "kind": "revoke",
+            "channel_gen": 1,
+            "at": 600,
+            "remote_id": "lif-2",
+            "op": "revoke_channel",
+            "signature": "7368e63ca978db583cb250d18327657cbc7690a9da3dc95905467e91eb39dbcb"
+          }
+        },
+        {
+          "exit": "W2"
+        },
+        {
+          "start": "W3",
+          "request": {
+            "remote_id": "req-fail",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W3"
+        },
+        {
+          "start": "W4",
+          "request": {
+            "remote_id": "req-fresh",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          }
+        },
+        {
+          "exit": "W4"
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E506"
+          },
+          {
+            "name": "W3",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E506",
+            "envelope.replayed": true
+          },
+          {
+            "name": "W4",
+            "envelope.receipt.status": "rejected",
+            "envelope.receipt.code": "E506",
+            "envelope.replayed": false
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 1,
+          "attempts.att-1.status": "open"
+        }
+      }
+    },
+    {
+      "race_id": "race-same-request-id",
+      "case": {
+        "case_id": "race-same-id",
+        "tenant": "tenant-race-same-id",
+        "account_id": "acct-1",
+        "signing_key": "synthetic-recovery-key-2026",
+        "load": {
+          "now": 0,
+          "channels": [
+            {
+              "id": "race-same-id-h",
+              "type": "human"
+            },
+            {
+              "id": "race-same-id-d",
+              "type": "device"
+            },
+            {
+              "id": "race-same-id-a",
+              "type": "admin"
+            },
+            {
+              "id": "race-same-id-d2",
+              "type": "device"
+            }
+          ],
+          "accounts": [
+            {
+              "id": "acct-1",
+              "account_gen": 1,
+              "status": "active"
+            }
+          ],
+          "attempts": [
+            {
+              "id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile": {
+                "display_name": "alice",
+                "email": "alice@example.test",
+                "locale": "en-GB"
+              },
+              "created_at": 100,
+              "expires_at": 3000,
+              "status": "open"
+            }
+          ],
+          "proofs": [
+            {
+              "id": "race-same-id-h",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-same-id-h",
+              "channel_type": "human",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-h",
+              "signature": "42c9dd3b9326417c4aeb253241dca08e20dbbb806d6e7803dd31c21d3212036d"
+            },
+            {
+              "id": "race-same-id-d",
+              "attempt_id": "att-1",
+              "account_id": "acct-1",
+              "account_gen": 1,
+              "profile_digest": "2f4993b75a10dbc056abfc7937fbe1162ceec44a02910cf52de3d2ac21fea0ab",
+              "channel_id": "race-same-id-d",
+              "channel_type": "device",
+              "channel_gen": 1,
+              "not_before": 100,
+              "not_after": 3000,
+              "issuer": "v-d",
+              "signature": "3c2a160754a7aaf5b94bddf5754ab54521298e58c7af9caf5d814c60eb708754"
+            }
+          ],
+          "channel_events": []
+        },
+        "operations": [],
+        "expect": {}
+      },
+      "steps": [
+        {
+          "start": "W1",
+          "request": {
+            "remote_id": "req-same",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "start": "W2",
+          "request": {
+            "remote_id": "req-same",
+            "op": "request_recovery",
+            "account_id": "acct-1",
+            "attempt_id": "att-1",
+            "at": 500
+          },
+          "park": [
+            "recovery.before_lock"
+          ]
+        },
+        {
+          "at": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "at": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "release": "W1",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W1"
+        },
+        {
+          "release": "W2",
+          "point": "recovery.before_lock"
+        },
+        {
+          "exit": "W2"
+        }
+      ],
+      "expect": {
+        "workers": [
+          {
+            "name": "W1",
+            "envelope.receipt.status": "committed",
+            "envelope.replayed": false
+          },
+          {
+            "name": "W2",
+            "envelope.receipt.status": "committed",
+            "envelope.replayed": true
+          }
+        ],
+        "final": {
+          "accounts.acct-1.account_gen": 2
+        }
+      }
+    }
+  ]
+}
